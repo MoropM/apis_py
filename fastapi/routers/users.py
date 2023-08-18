@@ -1,12 +1,23 @@
-from fastapi import FastAPI
+#  APIRouter : Permite expandir las rutas a otros ficheros donde se llame FastAPI
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
-app = FastAPI()
+
+# https://www.youtube.com/watch?v=_y9qQZXE24A&t=10802s
+
+routerUser = APIRouter(
+    prefix= '/users',
+    tags= ['users'],
+    responses={
+        404: { "message": "No encontrado"}
+    }
+)
 
 #https://fastapi.tiangolo.com/
 # Iniciar server: uvicorn users:app --reload
 # http://127.0.0.1:8000/
+#  Crear archivo de requerimientos:  pip freeze > requirements.txt
 
 # Entidad User
 class User(BaseModel):
@@ -31,42 +42,48 @@ def search_user(id):
 
 
 # Url de ejemplo
-@app.get('/usersjson')
+"""
+@routerUser.get('/usersjson')
 async def usersjson():
     return [
         {"name": "Moroni", "username": "moro", "edge": 25, "url": "https://google.com"},
         {"name": "Moroni", "username": "moro23", "edge": 19, "url": "https://google.com"},
         {"name": "Moroni", "username": "moro25", "edge": 32, "url": "https://google.com"}
     ]
+"""
 
 
-@app.get('/users')
+@routerUser.get('/')
 async def users():
     return users_list
 
+
 # Pametros a traves del path
 # http://127.0.0.1:8000/user/1
-@app.get('/user/{id}')
+@routerUser.get('/{id}')
 async def user(id: int):
     return search_user(id)
 
 
 # Pametros a traves de query
 # http://127.0.0.1:8000/userquery/?id=1
-@app.get('/userquery')
+@routerUser.get('/userquery')
 async def user(id: int):
     return search_user(id)
 
 
-@app.post('/user/')
+@routerUser.post('/', response_model=User, status_code=201)
 async def user(user: User):
     if type(search_user(user.id)) == User:
-        return {"error": "El usuario ya existe"}
+        # return {"error": "El usuario ya existe"}
+        # raise : Retorna correctamente el error
+        raise HTTPException(status_code=404, detail="El usuario ya existe")
     else:
         users_list.append(user)
         return user
 
-@app.put('/user/')
+
+@routerUser.put('/')
 async def user(user: User):
     found = False
     for index, saved_user in enumerate(users_list):
@@ -81,7 +98,8 @@ async def user(user: User):
     else:
         return user
 
-@app.delete('/user/{id}')
+
+@routerUser.delete('/{id}')
 async def user(id: int):
     found = False
     for index, saved_user in enumerate(users_list):
