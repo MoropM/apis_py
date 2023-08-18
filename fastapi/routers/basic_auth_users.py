@@ -44,9 +44,11 @@ users_db = {
 }
 
 
+# Buscar usuarios en BD
 def search_user_db(username: str):
     if username in users_db:
         return UserDB(**users_db[username])
+
 
 def search_user(username: str):
     if username in users_db:
@@ -90,3 +92,4 @@ async def login(form: OAuth2PasswordRequestForm = Depends()):
 @routerAuth.get("/users/me")
 async def me(user: User = Depends(current_user)):
     return user
+

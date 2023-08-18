@@ -6,7 +6,7 @@ from typing import Optional
 
 # Importar fichero
 # from Nombre_Path import Nombre_fichero
-from routers import products, users, basic_auth_users
+from routers import products, users, basic_auth_users, jwt_auth_users
 # Exponer nuestros archivos estaticos
 from fastapi.staticfiles import StaticFiles
 
@@ -16,11 +16,10 @@ app = FastAPI()
 app.include_router(products.router)
 app.include_router(users.routerUser)
 app.include_router(basic_auth_users.routerAuth)
+app.include_router(jwt_auth_users.routerJwtAuth)
 
 # Exponer nuestros archivos estaticos
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
 
 
 # Validacion de libros
